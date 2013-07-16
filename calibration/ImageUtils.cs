@@ -47,7 +47,6 @@ namespace calibration
                 for (int col = 0; col < matrix.Width; ++col)
                 {
                     short color = (short)(Math.Min(matrix[row, col], 1.0f) * byte.MaxValue + 0.5f);
-                    //byte color = Math.Max(Math.Min((byte)(matrix[row, col] + 0.5f), byte.MaxValue), byte.MinValue);
                     image.SetPixel(col, row, Color.FromArgb(color, color, color));
                 }
             }
@@ -71,19 +70,6 @@ namespace calibration
             return Matrix.Convolve(matrix, sobelKernel);
         }
 
-        public static Matrix ConvertToBinary(Matrix matrix, float threshold)
-        {
-            Matrix result = new Matrix(matrix.Height, matrix.Width);
-            for (int row = 0; row < matrix.Height; ++row)
-            {
-                for (int col = 0; col < matrix.Width; ++col)
-                {
-                    result[row, col] = (matrix[row, col] < threshold) ? 0 : 1;
-                }
-            }
-            return result;
-        }
-
         public static List<Vector> HarrisCornerDetector(Matrix image, out Matrix harrisImage)
         {
             List<Vector> corners = new List<Vector>();
@@ -105,8 +91,7 @@ namespace calibration
             }
             return corners;
         }
-
-
+        
         private static Matrix GenerateDerivMatrix(Matrix ixix, Matrix ixiy, Matrix iyiy, int x, int y, int windowSize)
         {
             Matrix result = new Matrix(2, 2);
@@ -128,6 +113,42 @@ namespace calibration
                 }
             }
             return result;
+        }
+
+        private static void NonMaxSupression(Matrix harris, List<Vector> corners)
+        {
+            for (int row = 0; row < harris.Height; ++row)
+            {
+                for (int col = 0; col < harris.Width; ++col)
+                {
+                    Vector corner = NonMaxSupressionWindow(harris, col, row, 3);
+                    corners.Add(corner);
+                }
+            }
+        }
+
+        private static Vector NonMaxSupressionWindow(Matrix harris, int x, int y, int windowSize)
+        {
+            int halfWindowSize = windowSize / 2;
+            int startRow = Math.Max(0, y - halfWindowSize);
+            int startCol = Math.Max(0, x - halfWindowSize);
+            int endRow = Math.Min(harris.Height, y + halfWindowSize);
+            int endCol = Math.Min(harris.Width, x + halfWindowSize);
+            float max = float.MinValue;
+            Vector maxPoint = new Vector(2);
+            for (int row = startRow; row < endRow; ++row)
+            {
+                for (int col = startCol; col < endCol; ++col)
+                {
+                    if (harris[row, col] > max)
+                    {
+                        max = harris[row, col];
+                        maxPoint[0] = row;
+                        maxPoint[1] = col;
+                    }
+                }
+            }
+            return maxPoint;
         }
 
         private static float HarrisResponse(float ixix, float ixiy, float iyiy)

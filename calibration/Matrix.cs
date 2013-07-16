@@ -29,9 +29,9 @@ namespace calibration
             get { return this._elements.GetLength(0); }
         }
 
-        public Matrix(int width, int height)
+        public Matrix(int height, int width)
         {
-            this._elements = new float[width, height];
+            this._elements = new float[height, width];
         }
 
         public Matrix(int width, int height, float initialValue)
