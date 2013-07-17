@@ -75,9 +75,9 @@ namespace calibration
             List<Vector> corners = new List<Vector>();
             Matrix dx = ConvolveSobelX(image);
             Matrix dy = ConvolveSobelY(image);
-            Matrix ixix = MultElements(dx, dx);
-            Matrix ixiy = MultElements(dx, dy);
-            Matrix iyiy = MultElements(dy, dy);
+            Matrix ixix = Matrix.MultElements(dx, dx);
+            Matrix ixiy = Matrix.MultElements(dx, dy);
+            Matrix iyiy = Matrix.MultElements(dy, dy);
             int windowSize = 3;
             harrisImage = new Matrix(ixix.Height, ixix.Width);
             for (int row = 0; row < dx.Height; ++row)
@@ -89,6 +89,8 @@ namespace calibration
                     harrisImage[row, col] = harrisResponse;
                 }
             }
+
+            NonMaxSupression(harrisImage, corners);
             return corners;
         }
         
@@ -122,7 +124,10 @@ namespace calibration
                 for (int col = 0; col < harris.Width; ++col)
                 {
                     Vector corner = NonMaxSupressionWindow(harris, col, row, 3);
-                    corners.Add(corner);
+                    if (corner[0] == row && corner[1] == col && harris[row, col] > 40)
+                    {
+                        corners.Add(corner);
+                    }
                 }
             }
         }
@@ -156,19 +161,6 @@ namespace calibration
             float det = ixix * iyiy - ixiy * ixiy;
             float trace = ixiy + ixiy;
             return (det - 0.04f * trace * trace);
-        }
-
-        private static Matrix MultElements(Matrix m1, Matrix m2)
-        {
-            Matrix result = new Matrix(m1.Height, m1.Width);
-            for (int row = 0; row < m1.Height; ++row)
-            {
-                for (int col = 0; col < m1.Width; ++col)
-                {
-                    result[row, col] = m1[row, col] * m2[row, col];
-                }
-            }
-            return result;
         }
     }
 }

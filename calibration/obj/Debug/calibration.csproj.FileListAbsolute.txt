@@ -1,0 +1,6 @@
+C:\Users\tom.swedlund\Documents\GitHub\calibration\calibration\bin\Debug\calibration.exe.config
+C:\Users\tom.swedlund\Documents\GitHub\calibration\calibration\bin\Debug\calibration.exe
+C:\Users\tom.swedlund\Documents\GitHub\calibration\calibration\bin\Debug\calibration.pdb
+C:\Users\tom.swedlund\Documents\GitHub\calibration\calibration\obj\Debug\calibration.csprojResolveAssemblyReference.cache
+C:\Users\tom.swedlund\Documents\GitHub\calibration\calibration\obj\Debug\calibration.exe
+C:\Users\tom.swedlund\Documents\GitHub\calibration\calibration\obj\Debug\calibration.pdb

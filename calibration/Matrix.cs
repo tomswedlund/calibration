@@ -169,5 +169,18 @@ namespace calibration
             }
             return max;
         }
+
+        public static Matrix MultElements(Matrix m1, Matrix m2)
+        {
+            Matrix result = new Matrix(m1.Height, m1.Width);
+            for (int row = 0; row < m1.Height; ++row)
+            {
+                for (int col = 0; col < m1.Width; ++col)
+                {
+                    result[row, col] = m1[row, col] * m2[row, col];
+                }
+            }
+            return result;
+        }
     }
 }
