@@ -12,31 +12,23 @@ namespace calibration
             Matrix harris;
             List<Vector> corners = ImageUtils.HarrisCornerDetector(image, out harris);
 
-            Matrix shift = new Matrix(harris.Height, harris.Width, Matrix.MaxNeg(harris));
+            //foreach (Vector corner in corners)
+            //{
+            //    image[(int)corner[0], (int)corner[1]] = 1;
+            //}
+            //ImageUtils.SaveAsImage(image, Path.Combine(path, "overlay.png"));
+
+            Matrix shift = new Matrix(harris.Height, harris.Width, MatrixUtils.MaxNeg(harris));
             harris += shift;
-            harris /= Matrix.Max(harris);
+            harris /= MatrixUtils.Max(harris);
             ImageUtils.SaveAsImage(harris, Path.Combine(path, "harris.png"));
 
-            Matrix cornerIm = new Matrix(harris.Height, harris.Width);
-            foreach (Vector pt in corners)
-            {
-                cornerIm[(int)pt[0], (int)pt[1]] = 1;
-            }
-            ImageUtils.SaveAsImage(cornerIm, Path.Combine(path, "corner.png"));
-
-
-            ////image = ImageUtils.ConvertToBinary(image, 0.8f);
-            ////ImageUtils.SaveAsImage(image, @"C:\Users\tom\Documents\Visual Studio 2012\Projects\calibration\calibration\binary.bmp");
-
-            ////Matrix sobel = ImageUtils.ConvolveSobelX(image);
-            ////sobel += ImageUtils.ConvolveSobelY(image);
-
-            //Matrix sobel = ImageUtils.HarrisCornerDetector(image);
-            //Matrix shift = new Matrix(sobel.Height, sobel.Width, Matrix.MaxNeg(sobel));
-            //sobel += shift;
-            //sobel /= Matrix.Max(sobel);
-
-            //ImageUtils.SaveAsImage(sobel, @"C:\Users\tom\Documents\Visual Studio 2012\Projects\calibration\calibration\result.bmp");
+            //Matrix cornerIm = new Matrix(harris.Height, harris.Width);
+            //foreach (Vector pt in corners)
+            //{
+            //    cornerIm[(int)pt[0], (int)pt[1]] = 1;
+            //}
+            //ImageUtils.SaveAsImage(cornerIm, Path.Combine(path, "corner.png"));
         }
     }
 }

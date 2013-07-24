@@ -59,7 +59,7 @@ namespace calibration
             sobelKernel[0, 0] = -1; sobelKernel[0, 2] = 1;
             sobelKernel[1, 0] = -2; sobelKernel[1, 2] = 2;
             sobelKernel[2, 0] = -1; sobelKernel[2, 2] = 1;
-            return Matrix.Convolve(matrix, sobelKernel);
+            return MatrixUtils.Convolve(matrix, sobelKernel);
         }
 
         public static Matrix ConvolveSobelY(Matrix matrix)
@@ -67,7 +67,7 @@ namespace calibration
             Matrix sobelKernel = new Matrix(3, 3);
             sobelKernel[0, 0] = -1; sobelKernel[0, 1] = -2; sobelKernel[0, 2] = -1;
             sobelKernel[2, 0] = 1; sobelKernel[2, 1] = 2; sobelKernel[2, 2] = 1;
-            return Matrix.Convolve(matrix, sobelKernel);
+            return MatrixUtils.Convolve(matrix, sobelKernel);
         }
 
         public static List<Vector> HarrisCornerDetector(Matrix image, out Matrix harrisImage)
@@ -75,9 +75,9 @@ namespace calibration
             List<Vector> corners = new List<Vector>();
             Matrix dx = ConvolveSobelX(image);
             Matrix dy = ConvolveSobelY(image);
-            Matrix ixix = Matrix.MultElements(dx, dx);
-            Matrix ixiy = Matrix.MultElements(dx, dy);
-            Matrix iyiy = Matrix.MultElements(dy, dy);
+            Matrix ixix = MatrixUtils.MultElements(dx, dx);
+            Matrix ixiy = MatrixUtils.MultElements(dx, dy);
+            Matrix iyiy = MatrixUtils.MultElements(dy, dy);
             int windowSize = 3;
             harrisImage = new Matrix(ixix.Height, ixix.Width);
             for (int row = 0; row < dx.Height; ++row)
@@ -85,7 +85,7 @@ namespace calibration
                 for (int col = 0; col < dx.Width; ++col)
                 {
                     Matrix derivMat = GenerateDerivMatrix(ixix, ixiy, iyiy, col, row, windowSize);
-                    float harrisResponse = HarrisResponse(derivMat[0, 0], derivMat[0, 1], derivMat[1, 1]);
+                    float harrisResponse = KanadeResponse(derivMat[0, 0], derivMat[0, 1], derivMat[1, 1]);
                     harrisImage[row, col] = harrisResponse;
                 }
             }
@@ -119,17 +119,50 @@ namespace calibration
 
         private static void NonMaxSupression(Matrix harris, List<Vector> corners)
         {
+            List<Tuple<float, int, int>> cornerVals = new List<Tuple<float,int,int>>();
             for (int row = 0; row < harris.Height; ++row)
             {
                 for (int col = 0; col < harris.Width; ++col)
                 {
-                    Vector corner = NonMaxSupressionWindow(harris, col, row, 3);
-                    if (corner[0] == row && corner[1] == col && harris[row, col] > 40)
+                    if (harris[row, col] > 40)
                     {
-                        corners.Add(corner);
+                        Tuple<float, int, int> tuple = new Tuple<float,int,int>(harris[row, col], row, col);
+                        cornerVals.Add(tuple);
                     }
                 }
             }
+            cornerVals.Sort((a, b) => b.Item1.CompareTo(a.Item1));
+
+            SparseMatrix sparse = new SparseMatrix(harris.Height, harris.Width);
+            foreach (Tuple<float, int, int> tuple in cornerVals)
+            {
+                if (!NeighborhoodHasValue(sparse, tuple.Item3, tuple.Item2, 3))
+                {
+                    sparse[tuple.Item2, tuple.Item3] = tuple.Item1;
+                    Vector v = new Vector(2); v[0] = tuple.Item2; v[1] = tuple.Item3;
+                    corners.Add(v);
+                }
+            }
+        }
+
+        private static bool NeighborhoodHasValue(SparseMatrix corners, int x, int y, int windowSize)
+        {
+            int halfWindowSize = windowSize / 2;
+            int startRow = Math.Max(0, y - halfWindowSize);
+            int startCol = Math.Max(0, x - halfWindowSize);
+            int endRow = Math.Min(corners.Height, y + halfWindowSize);
+            int endCol = Math.Min(corners.Width, x + halfWindowSize);
+            for (int row = startRow; row <= endRow; ++row)
+            {
+                for (int col = startCol; col <= endCol; ++col)
+                {
+                    if (corners[row, col] != 0)
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
 
         private static Vector NonMaxSupressionWindow(Matrix harris, int x, int y, int windowSize)
@@ -161,6 +194,21 @@ namespace calibration
             float det = ixix * iyiy - ixiy * ixiy;
             float trace = ixiy + ixiy;
             return (det - 0.04f * trace * trace);
+        }
+
+        private static float KanadeResponse(float ixix, float ixiy, float iyiy)
+        {
+            float B = ixix * iyiy;
+            float C = B - 2 * ixiy * ixiy;
+            float plus, minus;
+            if (MathUtils.SolveQuadratic(1, B, C, out plus, out minus))
+            {
+                return Math.Min(plus, minus);
+            }
+            else
+            {
+                return 0;
+            }
         }
     }
 }
