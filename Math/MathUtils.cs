@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace calibration
+namespace Tom.Math
 {
     public static class MathUtils
     {
@@ -22,7 +22,7 @@ namespace calibration
                 return false;
             }
 
-            float sqrt = (float)Math.Sqrt(root);
+            float sqrt = (float)System.Math.Sqrt(root);
             plus = (-B + sqrt) / denom;
             minus = (-B - sqrt) / denom;
             return true;
@@ -30,7 +30,7 @@ namespace calibration
 
         public static bool IsZero(float value)
         {
-            return (Math.Abs(value) < 0.0001f);
+            return (System.Math.Abs(value) < 0.0001f);
         }
     }
 }

@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace calibration
+namespace Tom.Math
 {
-    public class Matrix : IMatrix
+    public class Matrix
     {
         private float[,] _elements = null;
         private int _currentInitializerRow = 0;
@@ -47,7 +47,7 @@ namespace calibration
             }
         }
 
-        public Matrix(IMatrix mat)
+        public Matrix(Matrix mat)
         {
             this._elements = new float[mat.Height, mat.Width];
             for (int i = 0; i < mat.Height; ++i)

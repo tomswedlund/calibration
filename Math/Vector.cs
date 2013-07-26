@@ -1,4 +1,4 @@
-﻿namespace calibration
+﻿namespace Tom.Math
 {
     public class Vector
     {

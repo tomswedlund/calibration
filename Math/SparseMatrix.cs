@@ -1,9 +1,9 @@
-﻿using System.Collections.Generic;
-using System;
+﻿using System;
+using System.Collections.Generic;
 
-namespace calibration
+namespace Tom.Math
 {
-    public class SparseMatrix : IMatrix
+    public class SparseMatrix
     {
         private Dictionary<RowColKey, float> _elements = new Dictionary<RowColKey, float>();
 

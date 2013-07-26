@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
+using Tom.Math;
 
 namespace calibration
 {
@@ -124,7 +125,8 @@ namespace calibration
             {
                 for (int col = 0; col < harris.Width; ++col)
                 {
-                    if (harris[row, col] > 40)
+                    //if (harris[row, col] > 40)
+                    if (harris[row, col] > 2.5)
                     {
                         Tuple<float, int, int> tuple = new Tuple<float,int,int>(harris[row, col], row, col);
                         cornerVals.Add(tuple);
@@ -198,8 +200,8 @@ namespace calibration
 
         private static float KanadeResponse(float ixix, float ixiy, float iyiy)
         {
-            float B = ixix * iyiy;
-            float C = B - 2 * ixiy * ixiy;
+            float B = -ixix - iyiy;
+            float C = -ixiy * ixiy + ixix * iyiy;
             float plus, minus;
             if (MathUtils.SolveQuadratic(1, B, C, out plus, out minus))
             {

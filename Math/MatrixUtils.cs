@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace calibration
+namespace Tom.Math
 {
     public static class MatrixUtils
     {
@@ -41,7 +41,7 @@ namespace calibration
                 {
                     if (matrix[row, col] < 0)
                     {
-                        max = Math.Max(max, -matrix[row, col]);
+                        max = System.Math.Max(max, -matrix[row, col]);
                     }
                 }
             }
@@ -55,7 +55,7 @@ namespace calibration
             {
                 for (int col = 0; col < matrix.Width; ++col)
                 {
-                    max = Math.Max(max, matrix[row, col]);
+                    max = System.Math.Max(max, matrix[row, col]);
                 }
             }
             return max;
